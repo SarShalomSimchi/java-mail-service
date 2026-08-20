@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: MalamMailService
+  h2:
+    console:
+      enabled: true
+      path: /h2
+  datasource:
+    url: jdbc:h2:mem:memDB;DB_CLOSE_DELAY=-1
+    driverClassName: org.h2.Driver
+    username: sa
+    password: ""
+  jpa:
+    hibernate:
+      ddlAuto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+  config:
+    useLegacyProcessing: true
+
+
+
+  sql:
+    init:
+      mode: always
+
+storage:
+  attachments:
+    basePath: ../MalamMailService/attachments

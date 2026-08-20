@@ -1,0 +1,97 @@
+# MalamMailService API Links for Postman Testing
+
+## 1. Send Single Email (with/without attachments)
+POST http://localhost:8080/api/emails/send
+Content-Type: multipart/form-data
+
+Form Data:
+- sender: sender@example.com
+- recipient: recipient@example.com
+- subject: Test Subject
+- body: Test email body
+- attachments: [file1, file2, ...] (optional)
+
+Example Request Body (Postman form-data):
+| Key         | Value                  | Type     |
+|-------------|------------------------|----------|
+| sender      | sender@example.com     | Text     |
+| recipient   | recipient@example.com  | Text     |
+| subject     | Test Subject           | Text     |
+| body        | Test email body        | Text     |
+| attachments | (choose file)          | File     |
+
+---
+
+## 2. Send Bulk Emails
+POST http://localhost:8080/api/emails/bulk
+Content-Type: application/json
+
+Request Body (raw JSON):
+[
+  {
+    "sender": "sender1@example.com",
+    "recipient": "recipient1@example.com",
+    "subject": "Bulk Subject 1",
+    "body": "Bulk email body 1"
+    "attachmentId": 1
+  },
+  {
+    "sender": "sender2@example.com",
+    "recipient": "recipient2@example.com",
+    "subject": "Bulk Subject 2",
+    "body": "Bulk email body 2"
+    "attachmentId": 2
+  }
+]
+
+---
+
+## 3. Search Emails
+GET http://localhost:8080/api/emails/search?sender=sender@example.com&recipient=recipient@example.com&subject=Test
+
+Query Parameters (optional):
+- sender
+- recipient
+- subject
+
+---
+
+## 4. Get Email by ID
+GET http://localhost:8080/api/emails/{id}
+
+Path Parameter:
+- id: Email ID (integer)
+
+Example:
+GET http://localhost:8080/api/emails/1
+
+---
+
+## 5. Get All Sent Emails
+GET http://localhost:8080/api/emails/sent
+
+---
+
+## 6. Download Attachment by ID
+GET http://localhost:8080/api/emails/attachments/{attachmentId}/download
+
+Path Parameter:
+- attachmentId: Attachment ID (integer)
+
+Example:
+GET http://localhost:8080/api/emails/attachments/1/download
+
+---
+
+# API Test Checklist
+- [ ] Send single email (with/without attachments)
+- [ ] Send bulk emails
+- [ ] Search emails
+- [ ] Get email by ID
+- [ ] Get all sent emails
+- [ ] Download attachment by ID
+
+# Notes
+- Use Postman form-data for file uploads.
+- Use raw JSON for bulk email requests.
+- Remove or ignore any endpoints not listed above for testing.
