@@ -24,5 +24,46 @@ jobs:
           java-version: "21"
           cache: maven
 
-      - name: Run tests
+      - name: Run Maven tests
         run: mvn --batch-mode --no-transfer-progress test
+
+      - name: Build application
+        run: mvn --batch-mode --no-transfer-progress package -DskipTests
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Start application
+        run: |
+          java -jar target/java-mail-service-0.0.1-SNAPSHOT.jar > app.log 2>&1 &
+          echo $! > app.pid
+
+      - name: Wait for application
+        run: |
+          for attempt in {1..30}; do
+            if curl --fail --silent http://localhost:8080/api/emails/sent > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat app.log
+          exit 1
+
+      - name: Run Postman functional tests
+        run: |
+          npx --yes newman@6.2.1 run postman/MailService.postman_collection.json \
+            --working-dir postman \
+            --reporters cli
+
+      - name: Show application log on failure
+        if: failure()
+        run: cat app.log
+
+      - name: Stop application
+        if: always()
+        run: |
+          if [ -f app.pid ]; then
+            kill "$(cat app.pid)" || true
+          fi
