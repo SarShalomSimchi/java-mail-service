@@ -5,23 +5,25 @@ import java.util.UUID;
 
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
-@Valid
 @AllArgsConstructor
-public class EmailRequest{
+public class EmailRequest {
 
-	@NotNull @Email
-	private String sender;
-	@NotNull @Email
-	private String recipient;
-	private String subject;
-	private String body;
-	private List<MultipartFile> attachments;
-	private List<UUID> attachmentIds;
+    @NotBlank
+    @Email
+    private String sender;
+
+    @NotBlank
+    @Email
+    private String recipient;
+
+    private String subject;
+    private String body;
+    private List<MultipartFile> attachments;
+    private List<UUID> attachmentIds;
 }

@@ -1,6 +1,5 @@
 package com.sarshalom.mailservice.service;
 
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -25,60 +24,63 @@ import lombok.extern.log4j.Log4j2;
 @Service
 @Log4j2
 public class EmailService {
-	private static final Predicate<MultipartFile> VALID_ATTACHMENT =
-	        file -> file != null && file.getSize() > 0
-	        && file.getOriginalFilename() != null
-	        && !file.getOriginalFilename().isBlank();
+
+    private static final Predicate<MultipartFile> VALID_ATTACHMENT =
+            file -> file != null
+                    && file.getSize() > 0
+                    && file.getOriginalFilename() != null
+                    && !file.getOriginalFilename().isBlank();
 
     private final EmailRepository emailRepository;
     private final AttachmentService attachmentService;
     private final EmailMapper emailMapper;
 
-    public EmailService(EmailRepository emailRepository,
-                        AttachmentService attachmentService,
-                        EmailMapper emailMapper) {
+    public EmailService(
+            EmailRepository emailRepository,
+            AttachmentService attachmentService,
+            EmailMapper emailMapper) {
         this.emailRepository = emailRepository;
         this.attachmentService = attachmentService;
         this.emailMapper = emailMapper;
     }
 
     public EmailResponse sendEmail(EmailRequest emailRequest) {
-        log.info("EmailService - savesAndSendEmail: emailRequest={}", emailRequest);
+        int attachmentCount = emailRequest.getAttachments() == null
+                ? 0
+                : emailRequest.getAttachments().size();
+        log.info("Persisting single email; attachmentsCount={}", attachmentCount);
+
         Email savedEmail = saveEmail(emailRequest);
-        if (savedEmail == null) {
-            throw new IllegalStateException("Failed to save email");
-        }
         send(savedEmail);
         return emailMapper.toEmailResponse(savedEmail);
     }
 
     private Email saveEmail(EmailRequest emailRequest) {
-        Email email = createEmail(emailRequest);
-        Email savedEmail = emailRepository.save(email);
-        log.info("EmailService - sendEmail: savedEmailId={}", savedEmail.getId());
+        Email savedEmail = emailRepository.save(createEmail(emailRequest));
+        log.debug("Persisted email id={}", savedEmail.getId());
         return savedEmail;
     }
 
     private Email createEmail(EmailRequest emailRequest) {
-		Email email = emailMapper.toEmail(emailRequest);
-		addAttachmentsToEmail(email, emailRequest);
-		return email;
-	}
+        Email email = emailMapper.toEmail(emailRequest);
+        addAttachmentsToEmail(email, emailRequest);
+        return email;
+    }
 
     private void addAttachmentsToEmail(Email email, EmailRequest emailRequest) {
         if (hasAttachments(emailRequest)) {
             emailRequest.getAttachments().stream()
-                .filter(VALID_ATTACHMENT)
-                .map(file -> createAndSaveAttachment(email, file))
-                .forEach(email.getAttachments()::add);
+                    .filter(VALID_ATTACHMENT)
+                    .map(file -> createAttachment(email, file))
+                    .forEach(email.getAttachments()::add);
         }
     }
 
     private boolean hasAttachments(EmailRequest emailRequest) {
-	return emailRequest.getAttachments() != null && !emailRequest.getAttachments().isEmpty();
+        return emailRequest.getAttachments() != null && !emailRequest.getAttachments().isEmpty();
     }
 
-    private Attachment createAndSaveAttachment(Email email, MultipartFile file) {
+    private Attachment createAttachment(Email email, MultipartFile file) {
         String relativePath = attachmentService.saveAttachment(file);
         Attachment attachment = emailMapper.createAttachment(file, relativePath);
         attachment.setEmail(email);
@@ -86,96 +88,101 @@ public class EmailService {
     }
 
     private void send(Email email) {
-		log.info("EmailService - send: emailId={}", email.getId());
-		log.info("EmailService - send: start sending email....");
-        //send mail logic can be added here, e.g., using JavaMailSender....
-		// This is a placeholder for actual email sending logic
-		log.info("EmailService - send: finished sending email....");
-		// Logic to send the email, e.g., using JavaMailSender
-	}
+        log.debug("Email delivery stub invoked for email id={}", email.getId());
+    }
 
     private void sendBulk(List<Email> emails) {
-		log.info("EmailService - sendBulk: emailsCount={}", emails.size());
-		log.info("EmailService - sendBulk: start sending emails....");
-	    //send mail logic can be added here, e.g., using JavaMailSender....
-		// This is a placeholder for actual email sending logic
-	    log.info("EmailService - sendBulk: finished sending emails....");
-	}
-
+        log.debug("Bulk email delivery stub invoked; emailsCount={}", emails.size());
+    }
 
     @Transactional
-    public List<EmailResponse> sendEmails(List<EmailRequest> requests,
+    public List<EmailResponse> sendEmails(
+            List<EmailRequest> requests,
             Map<String, MultipartFile> attachmentMapping) {
+
         populateAttachments(requests, attachmentMapping);
         return persistAndSendAllEmails(requests);
     }
 
-    private void populateAttachments(List<EmailRequest> requests, Map<String, MultipartFile> attachmentMapping) {
+    private void populateAttachments(
+            List<EmailRequest> requests,
+            Map<String, MultipartFile> attachmentMapping) {
+
         if (requests != null) {
             requests.forEach(request ->
-                request.setAttachments(getAttachments(attachmentMapping, request))
-            );
+                    request.setAttachments(getAttachments(attachmentMapping, request)));
         }
     }
 
-	private List<MultipartFile> getAttachments(Map<String, MultipartFile> attachmentMapping, EmailRequest request) {
-		return request.getAttachmentIds() != null
-		        ? request.getAttachmentIds().stream()
-		            .map(attachmentId ->  getFile(attachmentMapping, attachmentId))
-		            .toList()
-		        : new ArrayList<>();
-	}
+    private List<MultipartFile> getAttachments(
+            Map<String, MultipartFile> attachmentMapping,
+            EmailRequest request) {
 
-
-	private MultipartFile getFile(Map<String, MultipartFile> attachmentMapping, UUID attachmentId) {
-		MultipartFile file = attachmentMapping.get(attachmentId.toString());
-		return Optional.ofNullable(file)
-		        .orElseThrow(() -> new ResourceNotFoundException("Attachment not found in request: " + attachmentId));
-	}
-
-	private List<EmailResponse> persistAndSendAllEmails(List<EmailRequest> emailRequests) {
-		log.info("EmailService - persistAndSendAllEmails (bulk): emailRequestsCount={}", emailRequests != null ? emailRequests.size() : 0);
-		if (emailRequests == null || emailRequests.isEmpty()) {
-			throw new IllegalArgumentException("Email requests cannot be null or empty");
-		}
-
-	    List<Email> emails = emailRequests.stream()
-	        .map(this::createEmail)
-	        .toList();
-
-	    List<Email> savedEmails = emailRepository.saveAll(emails);
-	    sendBulk(savedEmails);
-
-	    return savedEmails.stream().map(emailMapper::toEmailResponse).toList();
-	}
-
-
-    public EmailResponse getEmailById(Long id) {
-        log.info("EmailService - getEmailById: id={}", id);
-        return emailRepository.findById(id)
-                .map(emailMapper::toEmailResponse)
-                .orElseThrow(() -> new ResourceNotFoundException("Email not found with ID: " + id));
+        return request.getAttachmentIds() != null
+                ? request.getAttachmentIds().stream()
+                        .map(attachmentId -> getFile(attachmentMapping, attachmentId))
+                        .toList()
+                : new ArrayList<>();
     }
 
-    public List<EmailResponse> searchEmails(String sender, String recipient, String subject) {
-        log.info("EmailService - searchEmails: sender={}, recipient={}, subject={}", sender, recipient, subject);
-        String searchSender = nullIfEmpty(sender);
-        String searchRecipient = nullIfEmpty(recipient);
-        String searchSubject = nullIfEmpty(subject);
-        List<Email> emails = emailRepository.searchEmails(searchSender, searchRecipient, searchSubject);
+    private MultipartFile getFile(
+            Map<String, MultipartFile> attachmentMapping,
+            UUID attachmentId) {
+
+        MultipartFile file = attachmentMapping.get(attachmentId.toString());
+        return Optional.ofNullable(file)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Attachment not found in request: " + attachmentId));
+    }
+
+    private List<EmailResponse> persistAndSendAllEmails(List<EmailRequest> emailRequests) {
+        if (emailRequests == null || emailRequests.isEmpty()) {
+            throw new IllegalArgumentException("Email requests cannot be null or empty");
+        }
+
+        log.info("Persisting bulk emails; emailRequestsCount={}", emailRequests.size());
+
+        List<Email> emails = emailRequests.stream()
+                .map(this::createEmail)
+                .toList();
+
+        List<Email> savedEmails = emailRepository.saveAll(emails);
+        sendBulk(savedEmails);
+
+        return savedEmails.stream()
+                .map(emailMapper::toEmailResponse)
+                .toList();
+    }
+
+    public EmailResponse getEmailById(Long id) {
+        return emailRepository.findById(id)
+                .map(emailMapper::toEmailResponse)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Email not found with ID: " + id));
+    }
+
+    public List<EmailResponse> searchEmails(
+            String sender,
+            String recipient,
+            String subject) {
+
+        List<Email> emails = emailRepository.searchEmails(
+                nullIfEmpty(sender),
+                nullIfEmpty(recipient),
+                nullIfEmpty(subject));
+
         return emails.stream()
                 .map(emailMapper::toEmailResponse)
                 .toList();
     }
 
     private String nullIfEmpty(String value) {
-        return (value != null && !value.isEmpty()) ? value : null;
+        return value != null && !value.isEmpty() ? value : null;
     }
 
     public List<EmailResponse> getAllEmails() {
-        log.info("EmailService - getAllEmails");
-        List<Email> emails = emailRepository.findAll();
-        return emails.stream()
+        return emailRepository.findAll().stream()
                 .map(emailMapper::toEmailResponse)
                 .toList();
     }

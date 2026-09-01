@@ -1,6 +1,5 @@
 package com.sarshalom.mailservice.service;
 
-
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
@@ -30,7 +29,8 @@ public class AttachmentService {
     @Value("${storage.attachments.basePath}")
     private String attachmentBasePath;
 
-    private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy/MM/dd");
+    private static final DateTimeFormatter DATE_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy/MM/dd");
 
     private final AttachmentRepository attachmentRepository;
 
@@ -38,95 +38,79 @@ public class AttachmentService {
         this.attachmentRepository = attachmentRepository;
     }
 
-    /**
-     * Saves a MultipartFile to the configured attachment base path.
-     * The file is stored in a time-based directory structure (year/month/day)
-     * and named with a unique UUID.
-     *
-     * @param file The MultipartFile to save.
-     * @return The relative path of the saved file (e.g., '2025/08/04/uuid.pdf').
-     * @throws FileStorageException If an I/O error occurs during file saving.
-     */
     public String saveAttachment(MultipartFile file) {
-        log.info("AttachmentService - saveAttachment: fileName={}, size={}, contentType={}", file.getOriginalFilename(), file.getSize(), file.getContentType());
-        try {
-            String datePath = LocalDateTime.now().format(dateFormatter);
+        log.debug("Saving attachment; size={}, contentType={}",
+                file.getSize(), file.getContentType());
 
-            Path directoryPath = Paths.get(attachmentBasePath, datePath);
+        try {
+            String datePath = LocalDateTime.now().format(DATE_FORMATTER);
+            Path directoryPath = getBasePath().resolve(datePath);
             Files.createDirectories(directoryPath);
 
             String uniqueFilename = createUniqueFilename(file);
-
             Path filePath = directoryPath.resolve(uniqueFilename);
-            log.info("AttachmentService - saveAttachment: filePath={}", filePath);
-
             Files.copy(file.getInputStream(), filePath);
 
             return datePath + "/" + uniqueFilename;
         } catch (IOException ex) {
-            log.error("AttachmentService - saveAttachment: Failed to store file: {}. Exception: {}", file.getOriginalFilename(), ex.getMessage(), ex);
-            throw new FileStorageException("Could not store file " + file.getOriginalFilename() + ". Please try again!", ex);
+            log.error("Failed to store attachment", ex);
+            throw new FileStorageException("Could not store attachment.", ex);
         }
     }
 
-	private String createUniqueFilename(MultipartFile file) {
-		String fileExtension = getFileExtension(file);
-		return UUID.randomUUID().toString() + fileExtension;
-	}
+    private String createUniqueFilename(MultipartFile file) {
+        return UUID.randomUUID() + getFileExtension(file);
+    }
 
-	private String getFileExtension(MultipartFile file) {
-		String originalFilename = file.getOriginalFilename();
-		String fileExtension = "";
-		if (originalFilename != null && originalFilename.contains(".")) {
-		    fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
-		}
-		return fileExtension;
-	}
+    private String getFileExtension(MultipartFile file) {
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename != null && originalFilename.contains(".")) {
+            return originalFilename.substring(originalFilename.lastIndexOf("."));
+        }
+        return "";
+    }
 
-	public Resource getAttachmentResource(Attachment attachment) {
-        log.info("AttachmentService - getAttachmentResource: attachmentId={}, relativePath={}", attachment.getId(), attachment.getRelativePath());
+    public Resource getAttachmentResource(Attachment attachment) {
         return loadAttachment(attachment.getRelativePath());
     }
 
     public Attachment getAttachmentById(Long attachmentId) {
-        log.info("AttachmentService - getAttachmentById: attachmentId={}", attachmentId);
         return attachmentRepository.findById(attachmentId)
-                .orElseThrow(() -> {
-                    log.error("AttachmentService - getAttachmentById: Attachment not found with ID: {}", attachmentId);
-                    return new ResourceNotFoundException("Attachment not found with ID: " + attachmentId);
-                });
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Attachment not found with ID: " + attachmentId));
     }
 
     private Resource loadAttachment(String relativePath) {
-        log.info("AttachmentService - loadAttachment: relativePath={}", relativePath);
-        Path filePath = getNormalizedFilePath(relativePath);
-        Resource resource = getResource(filePath);
-        validateResource(relativePath, resource);
-        return resource;
-    }
+        Path filePath = resolveSafePath(relativePath);
 
-    private Path getNormalizedFilePath(String relativePath) {
-        log.info("AttachmentService - getNormalizedFilePath: relativePath={}", relativePath);
-        return Paths.get(attachmentBasePath).resolve(relativePath).normalize();
-    }
-
-    private Resource getResource(Path filePath) {
-        log.info("AttachmentService - getResource: filePath={}", filePath);
         try {
-            return new UrlResource(filePath.toUri());
+            Resource resource = new UrlResource(filePath.toUri());
+            validateResource(resource);
+            return resource;
         } catch (MalformedURLException ex) {
-            log.error("AttachmentService - getResource: Invalid file path: {}. Exception: {}", filePath, ex.getMessage(), ex);
-            throw new FileStorageException("File path is invalid: " + filePath, ex);
+            throw new FileStorageException("Attachment path is invalid.", ex);
         }
     }
 
-    private void validateResource(String relativePath, Resource resource) {
+    private Path resolveSafePath(String relativePath) {
+        Path basePath = getBasePath();
+        Path resolvedPath = basePath.resolve(relativePath).normalize();
+
+        if (!resolvedPath.startsWith(basePath)) {
+            throw new FileStorageException("Attachment path is outside the configured storage directory.");
+        }
+
+        return resolvedPath;
+    }
+
+    private Path getBasePath() {
+        return Paths.get(attachmentBasePath).toAbsolutePath().normalize();
+    }
+
+    private void validateResource(Resource resource) {
         if (!resource.exists() || !resource.isReadable()) {
-            log.error("AttachmentService - validateResource: File not found or not readable: {}", relativePath);
-            throw new FileStorageException("File not found or not readable: " + relativePath);
+            throw new FileStorageException("Attachment file was not found or is not readable.");
         }
     }
-
-
-
 }
