@@ -1,0 +1,671 @@
+﻿{
+    "info":  {
+                 "_postman_id":  "0f9dbec7-935d-4e61-a40b-09dc506cb15f",
+                 "name":  "Mail Service API Tests - Automated",
+                 "description":  "Automated functional tests for the Mail Service API.",
+                 "schema":  "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+             },
+    "event":  [
+                  {
+                      "listen":  "prerequest",
+                      "script":  {
+                                     "type":  "text/javascript",
+                                     "exec":  [
+                                                  "if (!pm.collectionVariables.get(\u0027runId\u0027)) {",
+                                                  "    pm.collectionVariables.set(\u0027runId\u0027, Date.now().toString());",
+                                                  "}"
+                                              ]
+                                 }
+                  }
+              ],
+    "variable":  [
+                     {
+                         "key":  "baseUrl",
+                         "value":  "http://localhost:8080/api/emails",
+                         "type":  "string"
+                     },
+                     {
+                         "key":  "runId",
+                         "value":  "",
+                         "type":  "string"
+                     },
+                     {
+                         "key":  "noAttachmentEmailId",
+                         "value":  "",
+                         "type":  "string"
+                     },
+                     {
+                         "key":  "singleEmailId",
+                         "value":  "",
+                         "type":  "string"
+                     },
+                     {
+                         "key":  "singleAttachmentId",
+                         "value":  "",
+                         "type":  "string"
+                     },
+                     {
+                         "key":  "singleAttachmentFileName",
+                         "value":  "",
+                         "type":  "string"
+                     },
+                     {
+                         "key":  "multiEmailId",
+                         "value":  "",
+                         "type":  "string"
+                     },
+                     {
+                         "key":  "bulkEmail1Id",
+                         "value":  "",
+                         "type":  "string"
+                     },
+                     {
+                         "key":  "bulkEmail2Id",
+                         "value":  "",
+                         "type":  "string"
+                     }
+                 ],
+    "item":  [
+                 {
+                     "name":  "01 - Send Email - No Attachment",
+                     "event":  [
+                                   {
+                                       "listen":  "prerequest",
+                                       "script":  {
+                                                      "type":  "text/javascript",
+                                                      "exec":  [
+                                                                   "const runId = Date.now().toString() + \u0027-\u0027 + Math.floor(Math.random() * 100000).toString();",
+                                                                   "pm.collectionVariables.set(\u0027runId\u0027, runId);"
+                                                               ]
+                                                  }
+                                   },
+                                   {
+                                       "listen":  "test",
+                                       "script":  {
+                                                      "type":  "text/javascript",
+                                                      "exec":  [
+                                                                   "pm.test(\u0027HTTP 201 Created\u0027, function () {",
+                                                                   "    pm.response.to.have.status(201);",
+                                                                   "});",
+                                                                   "const json = pm.response.json();",
+                                                                   "const runId = pm.collectionVariables.get(\u0027runId\u0027);",
+                                                                   "pm.test(\u0027Response contains the created email\u0027, function () {",
+                                                                   "    pm.expect(json).to.have.property(\u0027id\u0027);",
+                                                                   "    pm.expect(json).to.have.property(\u0027sender\u0027);",
+                                                                   "    pm.expect(json).to.have.property(\u0027recipient\u0027);",
+                                                                   "    pm.expect(json).to.have.property(\u0027subject\u0027);",
+                                                                   "    pm.expect(json).to.have.property(\u0027body\u0027);",
+                                                                   "    pm.expect(json).to.have.property(\u0027createDate\u0027);",
+                                                                   "    pm.expect(json).to.have.property(\u0027attachments\u0027);",
+                                                                   "    pm.expect(json.attachments).to.be.an(\u0027array\u0027);",
+                                                                   "    pm.expect(json.sender).to.eql(`noattachment.${runId}@example.com`);",
+                                                                   "    pm.expect(json.recipient).to.eql(`recipient0.${runId}@example.com`);",
+                                                                   "    pm.expect(json.subject).to.eql(`AutomatedNoAttachment-${runId}`);",
+                                                                   "    pm.expect(json.attachments).to.have.lengthOf(0);",
+                                                                   "});",
+                                                                   "pm.collectionVariables.set(\u0027noAttachmentEmailId\u0027, String(json.id));"
+                                                               ]
+                                                  }
+                                   }
+                               ],
+                     "request":  {
+                                     "auth":  {
+                                                  "type":  "noauth"
+                                              },
+                                     "method":  "POST",
+                                     "header":  [
+
+                                                ],
+                                     "body":  {
+                                                  "mode":  "formdata",
+                                                  "formdata":  [
+                                                                   {
+                                                                       "key":  "sender",
+                                                                       "value":  "noattachment.{{runId}}@example.com",
+                                                                       "type":  "text",
+                                                                       "contentType":  "text/plain"
+                                                                   },
+                                                                   {
+                                                                       "key":  "recipient",
+                                                                       "value":  "recipient0.{{runId}}@example.com",
+                                                                       "type":  "text",
+                                                                       "contentType":  "text/plain"
+                                                                   },
+                                                                   {
+                                                                       "key":  "subject",
+                                                                       "value":  "AutomatedNoAttachment-{{runId}}",
+                                                                       "type":  "text",
+                                                                       "contentType":  "text/plain"
+                                                                   },
+                                                                   {
+                                                                       "key":  "body",
+                                                                       "value":  "Automated no-attachment body {{runId}}",
+                                                                       "type":  "text",
+                                                                       "contentType":  "text/plain"
+                                                                   }
+                                                               ]
+                                              },
+                                     "url":  "{{baseUrl}}/send",
+                                     "description":  "Creates a single email without attachments. This request also creates a fresh runId for the entire collection run."
+                                 },
+                     "response":  [
+
+                                  ]
+                 },
+                 {
+                     "name":  "02 - Send Email - One Attachment",
+                     "event":  [
+                                   {
+                                       "listen":  "test",
+                                       "script":  {
+                                                      "type":  "text/javascript",
+                                                      "exec":  [
+                                                                   "pm.test(\u0027HTTP 201 Created\u0027, function () {",
+                                                                   "    pm.response.to.have.status(201);",
+                                                                   "});",
+                                                                   "const json = pm.response.json();",
+                                                                   "const runId = pm.collectionVariables.get(\u0027runId\u0027);",
+                                                                   "pm.test(\u0027One attachment is persisted and returned\u0027, function () {",
+                                                                   "    pm.expect(json).to.have.property(\u0027id\u0027);",
+                                                                   "    pm.expect(json).to.have.property(\u0027sender\u0027);",
+                                                                   "    pm.expect(json).to.have.property(\u0027recipient\u0027);",
+                                                                   "    pm.expect(json).to.have.property(\u0027subject\u0027);",
+                                                                   "    pm.expect(json).to.have.property(\u0027body\u0027);",
+                                                                   "    pm.expect(json).to.have.property(\u0027createDate\u0027);",
+                                                                   "    pm.expect(json).to.have.property(\u0027attachments\u0027);",
+                                                                   "    pm.expect(json.attachments).to.be.an(\u0027array\u0027);",
+                                                                   "    pm.expect(json.sender).to.eql(`single1.${runId}@example.com`);",
+                                                                   "    pm.expect(json.recipient).to.eql(`recipient1.${runId}@example.com`);",
+                                                                   "    pm.expect(json.subject).to.eql(`AutomatedSingleSubject-${runId}`);",
+                                                                   "    pm.expect(json.attachments).to.have.lengthOf(1);",
+                                                                   "    pm.expect(json.attachments[0].fileName).to.eql(\u0027attachment-a.txt\u0027);",
+                                                                   "    pm.expect(json.attachments[0].mimeType).to.include(\u0027text/plain\u0027);",
+                                                                   "    pm.expect(json.attachments[0].fileSize).to.be.above(0);",
+                                                                   "    pm.expect(json.attachments[0].downloadUrl).to.eql(`/api/emails/attachments/${json.attachments[0].id}/download`);",
+                                                                   "});",
+                                                                   "pm.collectionVariables.set(\u0027singleEmailId\u0027, String(json.id));",
+                                                                   "pm.collectionVariables.set(\u0027singleAttachmentId\u0027, String(json.attachments[0].id));",
+                                                                   "pm.collectionVariables.set(\u0027singleAttachmentFileName\u0027, json.attachments[0].fileName);"
+                                                               ]
+                                                  }
+                                   }
+                               ],
+                     "request":  {
+                                     "auth":  {
+                                                  "type":  "noauth"
+                                              },
+                                     "method":  "POST",
+                                     "header":  [
+
+                                                ],
+                                     "body":  {
+                                                  "mode":  "formdata",
+                                                  "formdata":  [
+                                                                   {
+                                                                       "key":  "sender",
+                                                                       "value":  "single1.{{runId}}@example.com",
+                                                                       "type":  "text",
+                                                                       "contentType":  "text/plain"
+                                                                   },
+                                                                   {
+                                                                       "key":  "recipient",
+                                                                       "value":  "recipient1.{{runId}}@example.com",
+                                                                       "type":  "text",
+                                                                       "contentType":  "text/plain"
+                                                                   },
+                                                                   {
+                                                                       "key":  "subject",
+                                                                       "value":  "AutomatedSingleSubject-{{runId}}",
+                                                                       "type":  "text",
+                                                                       "contentType":  "text/plain"
+                                                                   },
+                                                                   {
+                                                                       "key":  "body",
+                                                                       "value":  "Automated single attachment body {{runId}}",
+                                                                       "type":  "text",
+                                                                       "contentType":  "text/plain"
+                                                                   },
+                                                                   {
+                                                                       "key":  "attachments",
+                                                                       "type":  "file",
+                                                                       "src":  "test-files/attachment-a.txt",
+                                                                       "contentType":  "text/plain"
+                                                                   }
+                                                               ]
+                                              },
+                                     "url":  "{{baseUrl}}/send",
+                                     "description":  "Creates one email with one local text attachment and stores the generated email and attachment IDs for later requests."
+                                 },
+                     "response":  [
+
+                                  ]
+                 },
+                 {
+                     "name":  "03 - Send Email - Multiple Attachments",
+                     "event":  [
+                                   {
+                                       "listen":  "test",
+                                       "script":  {
+                                                      "type":  "text/javascript",
+                                                      "exec":  [
+                                                                   "pm.test(\u0027HTTP 201 Created\u0027, function () {",
+                                                                   "    pm.response.to.have.status(201);",
+                                                                   "});",
+                                                                   "const json = pm.response.json();",
+                                                                   "const runId = pm.collectionVariables.get(\u0027runId\u0027);",
+                                                                   "pm.test(\u0027Two attachments are persisted and returned\u0027, function () {",
+                                                                   "    pm.expect(json.sender).to.eql(`single2.${runId}@example.com`);",
+                                                                   "    pm.expect(json.attachments).to.be.an(\u0027array\u0027).with.lengthOf(2);",
+                                                                   "    const names = json.attachments.map(a =\u003e a.fileName);",
+                                                                   "    pm.expect(names).to.include(\u0027attachment-a.txt\u0027);",
+                                                                   "    pm.expect(names).to.include(\u0027attachment-b.txt\u0027);",
+                                                                   "    json.attachments.forEach(function (a) {",
+                                                                   "        pm.expect(a.id).to.exist;",
+                                                                   "        pm.expect(a.fileSize).to.be.above(0);",
+                                                                   "    });",
+                                                                   "});",
+                                                                   "pm.collectionVariables.set(\u0027multiEmailId\u0027, String(json.id));"
+                                                               ]
+                                                  }
+                                   }
+                               ],
+                     "request":  {
+                                     "auth":  {
+                                                  "type":  "noauth"
+                                              },
+                                     "method":  "POST",
+                                     "header":  [
+
+                                                ],
+                                     "body":  {
+                                                  "mode":  "formdata",
+                                                  "formdata":  [
+                                                                   {
+                                                                       "key":  "sender",
+                                                                       "value":  "single2.{{runId}}@example.com",
+                                                                       "type":  "text",
+                                                                       "contentType":  "text/plain"
+                                                                   },
+                                                                   {
+                                                                       "key":  "recipient",
+                                                                       "value":  "recipient2.{{runId}}@example.com",
+                                                                       "type":  "text",
+                                                                       "contentType":  "text/plain"
+                                                                   },
+                                                                   {
+                                                                       "key":  "subject",
+                                                                       "value":  "AutomatedMultiSubject-{{runId}}",
+                                                                       "type":  "text",
+                                                                       "contentType":  "text/plain"
+                                                                   },
+                                                                   {
+                                                                       "key":  "body",
+                                                                       "value":  "Automated multiple attachment body {{runId}}",
+                                                                       "type":  "text",
+                                                                       "contentType":  "text/plain"
+                                                                   },
+                                                                   {
+                                                                       "key":  "attachments",
+                                                                       "type":  "file",
+                                                                       "src":  "test-files/attachment-a.txt",
+                                                                       "contentType":  "text/plain"
+                                                                   },
+                                                                   {
+                                                                       "key":  "attachments",
+                                                                       "type":  "file",
+                                                                       "src":  "test-files/attachment-b.txt",
+                                                                       "contentType":  "text/plain"
+                                                                   }
+                                                               ]
+                                              },
+                                     "url":  "{{baseUrl}}/send",
+                                     "description":  "Creates one email with two attachments using the same multipart key, matching List\u003cMultipartFile\u003e attachments."
+                                 },
+                     "response":  [
+
+                                  ]
+                 },
+                 {
+                     "name":  "04 - Send Bulk Emails - Shared Attachments",
+                     "event":  [
+                                   {
+                                       "listen":  "test",
+                                       "script":  {
+                                                      "type":  "text/javascript",
+                                                      "exec":  [
+                                                                   "pm.test(\u0027HTTP 200 OK\u0027, function () {",
+                                                                   "    pm.response.to.have.status(200);",
+                                                                   "});",
+                                                                   "const json = pm.response.json();",
+                                                                   "const runId = pm.collectionVariables.get(\u0027runId\u0027);",
+                                                                   "pm.test(\u0027Bulk response contains two emails\u0027, function () {",
+                                                                   "    pm.expect(json).to.be.an(\u0027array\u0027).with.lengthOf(2);",
+                                                                   "    pm.expect(json[0].sender).to.eql(`bulk1.${runId}@example.com`);",
+                                                                   "    pm.expect(json[1].sender).to.eql(`bulk2.${runId}@example.com`);",
+                                                                   "});",
+                                                                   "pm.test(\u0027Bulk attachment mapping is correct\u0027, function () {",
+                                                                   "    pm.expect(json[0].attachments).to.have.lengthOf(1);",
+                                                                   "    pm.expect(json[0].attachments[0].fileName).to.eql(\u0027attachment-b.txt\u0027);",
+                                                                   "    pm.expect(json[1].attachments).to.have.lengthOf(2);",
+                                                                   "    const names = json[1].attachments.map(a =\u003e a.fileName);",
+                                                                   "    pm.expect(names).to.include(\u0027attachment-a.txt\u0027);",
+                                                                   "    pm.expect(names).to.include(\u0027attachment-b.txt\u0027);",
+                                                                   "});",
+                                                                   "pm.collectionVariables.set(\u0027bulkEmail1Id\u0027, String(json[0].id));",
+                                                                   "pm.collectionVariables.set(\u0027bulkEmail2Id\u0027, String(json[1].id));"
+                                                               ]
+                                                  }
+                                   }
+                               ],
+                     "request":  {
+                                     "auth":  {
+                                                  "type":  "noauth"
+                                              },
+                                     "method":  "POST",
+                                     "header":  [
+
+                                                ],
+                                     "body":  {
+                                                  "mode":  "formdata",
+                                                  "formdata":  [
+                                                                   {
+                                                                       "key":  "eba625c6-ae6e-4ecb-8e2a-17fa93f28ffc",
+                                                                       "type":  "file",
+                                                                       "src":  "test-files/attachment-a.txt",
+                                                                       "contentType":  "text/plain"
+                                                                   },
+                                                                   {
+                                                                       "key":  "ddbeceac-78a9-4ada-a047-8be226406124",
+                                                                       "type":  "file",
+                                                                       "src":  "test-files/attachment-b.txt",
+                                                                       "contentType":  "text/plain"
+                                                                   },
+                                                                   {
+                                                                       "key":  "emailRequests",
+                                                                       "value":  "[\n  {\n    \"sender\": \"bulk1.{{runId}}@example.com\",\n    \"recipient\": \"bulkrecipient1.{{runId}}@example.com\",\n    \"subject\": \"AutomatedBulkSubject1-{{runId}}\",\n    \"body\": \"Automated bulk body 1 {{runId}}\",\n    \"attachmentIds\": [\"ddbeceac-78a9-4ada-a047-8be226406124\"]\n  },\n  {\n    \"sender\": \"bulk2.{{runId}}@example.com\",\n    \"recipient\": \"bulkrecipient2.{{runId}}@example.com\",\n    \"subject\": \"AutomatedBulkSubject2-{{runId}}\",\n    \"body\": \"Automated bulk body 2 {{runId}}\",\n    \"attachmentIds\": [\"eba625c6-ae6e-4ecb-8e2a-17fa93f28ffc\", \"ddbeceac-78a9-4ada-a047-8be226406124\"]\n  }\n]",
+                                                                       "type":  "text",
+                                                                       "contentType":  "application/json"
+                                                                   }
+                                                               ]
+                                              },
+                                     "url":  "{{baseUrl}}/bulk",
+                                     "description":  "Matches the working manual bulk scenario: email 1 uses one attachment; email 2 uses both attachments. Multipart file part names are UUIDs referenced by attachmentIds."
+                                 },
+                     "response":  [
+
+                                  ]
+                 },
+                 {
+                     "name":  "05 - Get Email By ID",
+                     "event":  [
+                                   {
+                                       "listen":  "test",
+                                       "script":  {
+                                                      "type":  "text/javascript",
+                                                      "exec":  [
+                                                                   "pm.test(\u0027HTTP 200 OK\u0027, function () {",
+                                                                   "    pm.response.to.have.status(200);",
+                                                                   "});",
+                                                                   "const json = pm.response.json();",
+                                                                   "const runId = pm.collectionVariables.get(\u0027runId\u0027);",
+                                                                   "pm.test(\u0027Returned email matches the previously created email\u0027, function () {",
+                                                                   "    pm.expect(String(json.id)).to.eql(pm.collectionVariables.get(\u0027singleEmailId\u0027));",
+                                                                   "    pm.expect(json.sender).to.eql(`single1.${runId}@example.com`);",
+                                                                   "    pm.expect(json.recipient).to.eql(`recipient1.${runId}@example.com`);",
+                                                                   "    pm.expect(json.attachments).to.have.lengthOf(1);",
+                                                                   "    pm.expect(String(json.attachments[0].id)).to.eql(pm.collectionVariables.get(\u0027singleAttachmentId\u0027));",
+                                                                   "});"
+                                                               ]
+                                                  }
+                                   }
+                               ],
+                     "request":  {
+                                     "auth":  {
+                                                  "type":  "noauth"
+                                              },
+                                     "method":  "GET",
+                                     "header":  [
+
+                                                ],
+                                     "url":  "{{baseUrl}}/{{singleEmailId}}",
+                                     "description":  "Reads the email created in request 02 using the dynamically stored ID."
+                                 },
+                     "response":  [
+
+                                  ]
+                 },
+                 {
+                     "name":  "06 - Search Emails - Sender Recipient Subject",
+                     "event":  [
+                                   {
+                                       "listen":  "test",
+                                       "script":  {
+                                                      "type":  "text/javascript",
+                                                      "exec":  [
+                                                                   "pm.test(\u0027HTTP 200 OK\u0027, function () {",
+                                                                   "    pm.response.to.have.status(200);",
+                                                                   "});",
+                                                                   "const json = pm.response.json();",
+                                                                   "const expectedId = pm.collectionVariables.get(\u0027singleEmailId\u0027);",
+                                                                   "pm.test(\u0027Search result contains the email created in request 02\u0027, function () {",
+                                                                   "    pm.expect(json).to.be.an(\u0027array\u0027);",
+                                                                   "    const ids = json.map(e =\u003e String(e.id));",
+                                                                   "    pm.expect(ids).to.include(expectedId);",
+                                                                   "});"
+                                                               ]
+                                                  }
+                                   }
+                               ],
+                     "request":  {
+                                     "auth":  {
+                                                  "type":  "noauth"
+                                              },
+                                     "method":  "GET",
+                                     "header":  [
+
+                                                ],
+                                     "url":  "{{baseUrl}}/search?sender=single1.{{runId}}@example.com\u0026recipient=recipient1.{{runId}}@example.com\u0026subject=AutomatedSingleSubject-{{runId}}",
+                                     "description":  "Checks all three optional search filters together."
+                                 },
+                     "response":  [
+
+                                  ]
+                 },
+                 {
+                     "name":  "07 - Search Emails - Subject Only",
+                     "event":  [
+                                   {
+                                       "listen":  "test",
+                                       "script":  {
+                                                      "type":  "text/javascript",
+                                                      "exec":  [
+                                                                   "pm.test(\u0027HTTP 200 OK\u0027, function () {",
+                                                                   "    pm.response.to.have.status(200);",
+                                                                   "});",
+                                                                   "const json = pm.response.json();",
+                                                                   "const expectedId = pm.collectionVariables.get(\u0027bulkEmail2Id\u0027);",
+                                                                   "pm.test(\u0027Subject-only search contains bulk email 2\u0027, function () {",
+                                                                   "    pm.expect(json).to.be.an(\u0027array\u0027);",
+                                                                   "    const ids = json.map(e =\u003e String(e.id));",
+                                                                   "    pm.expect(ids).to.include(expectedId);",
+                                                                   "});"
+                                                               ]
+                                                  }
+                                   }
+                               ],
+                     "request":  {
+                                     "auth":  {
+                                                  "type":  "noauth"
+                                              },
+                                     "method":  "GET",
+                                     "header":  [
+
+                                                ],
+                                     "url":  "{{baseUrl}}/search?subject=AutomatedBulkSubject2-{{runId}}",
+                                     "description":  "Checks that omitted sender and recipient filters are ignored."
+                                 },
+                     "response":  [
+
+                                  ]
+                 },
+                 {
+                     "name":  "08 - Get All Sent Emails",
+                     "event":  [
+                                   {
+                                       "listen":  "test",
+                                       "script":  {
+                                                      "type":  "text/javascript",
+                                                      "exec":  [
+                                                                   "pm.test(\u0027HTTP 200 OK\u0027, function () {",
+                                                                   "    pm.response.to.have.status(200);",
+                                                                   "});",
+                                                                   "const json = pm.response.json();",
+                                                                   "pm.test(\u0027Sent list contains emails created in this run\u0027, function () {",
+                                                                   "    pm.expect(json).to.be.an(\u0027array\u0027);",
+                                                                   "    const ids = json.map(e =\u003e String(e.id));",
+                                                                   "    [",
+                                                                   "        \u0027noAttachmentEmailId\u0027,",
+                                                                   "        \u0027singleEmailId\u0027,",
+                                                                   "        \u0027multiEmailId\u0027,",
+                                                                   "        \u0027bulkEmail1Id\u0027,",
+                                                                   "        \u0027bulkEmail2Id\u0027",
+                                                                   "    ].forEach(function (name) {",
+                                                                   "        pm.expect(ids).to.include(pm.collectionVariables.get(name));",
+                                                                   "    });",
+                                                                   "});"
+                                                               ]
+                                                  }
+                                   }
+                               ],
+                     "request":  {
+                                     "auth":  {
+                                                  "type":  "noauth"
+                                              },
+                                     "method":  "GET",
+                                     "header":  [
+
+                                                ],
+                                     "url":  "{{baseUrl}}/sent",
+                                     "description":  "Checks that the persisted emails from the current automated run are present in the sent list."
+                                 },
+                     "response":  [
+
+                                  ]
+                 },
+                 {
+                     "name":  "09 - Download Attachment",
+                     "event":  [
+                                   {
+                                       "listen":  "test",
+                                       "script":  {
+                                                      "type":  "text/javascript",
+                                                      "exec":  [
+                                                                   "pm.test(\u0027HTTP 200 OK\u0027, function () {",
+                                                                   "    pm.response.to.have.status(200);",
+                                                                   "});",
+                                                                   "pm.test(\u0027Download headers are correct\u0027, function () {",
+                                                                   "    const disposition = pm.response.headers.get(\u0027Content-Disposition\u0027);",
+                                                                   "    const contentType = pm.response.headers.get(\u0027Content-Type\u0027);",
+                                                                   "    const contentLength = Number(pm.response.headers.get(\u0027Content-Length\u0027));",
+                                                                   "    pm.expect(disposition).to.include(\u0027attachment-a.txt\u0027);",
+                                                                   "    pm.expect(contentType).to.include(\u0027text/plain\u0027);",
+                                                                   "    pm.expect(contentLength).to.be.above(0);",
+                                                                   "});",
+                                                                   "pm.test(\u0027Downloaded content matches the fixture\u0027, function () {",
+                                                                   "    pm.expect(pm.response.text()).to.eql(\u0027Mail Service automated attachment A.\\n\u0027);",
+                                                                   "});"
+                                                               ]
+                                                  }
+                                   }
+                               ],
+                     "request":  {
+                                     "auth":  {
+                                                  "type":  "noauth"
+                                              },
+                                     "method":  "GET",
+                                     "header":  [
+
+                                                ],
+                                     "url":  "{{baseUrl}}/attachments/{{singleAttachmentId}}/download",
+                                     "description":  "Downloads the attachment created in request 02 and validates its headers and exact text content."
+                                 },
+                     "response":  [
+
+                                  ]
+                 },
+                 {
+                     "name":  "10 - Get Missing Email - 404",
+                     "event":  [
+                                   {
+                                       "listen":  "test",
+                                       "script":  {
+                                                      "type":  "text/javascript",
+                                                      "exec":  [
+                                                                   "pm.test(\u0027HTTP 404 Not Found\u0027, function () {",
+                                                                   "    pm.response.to.have.status(404);",
+                                                                   "});",
+                                                                   "const json = pm.response.json();",
+                                                                   "pm.test(\u0027Error response describes the missing email\u0027, function () {",
+                                                                   "    pm.expect(json.status).to.eql(404);",
+                                                                   "    pm.expect(json.error).to.eql(\u0027Not Found\u0027);",
+                                                                   "    pm.expect(json.message).to.include(\u0027Email not found with ID\u0027);",
+                                                                   "    pm.expect(json.path).to.include(\u0027/api/emails/999999999\u0027);",
+                                                                   "});"
+                                                               ]
+                                                  }
+                                   }
+                               ],
+                     "request":  {
+                                     "auth":  {
+                                                  "type":  "noauth"
+                                              },
+                                     "method":  "GET",
+                                     "header":  [
+
+                                                ],
+                                     "url":  "{{baseUrl}}/999999999",
+                                     "description":  "Verifies the ResourceNotFoundException path for an email ID that should not exist."
+                                 },
+                     "response":  [
+
+                                  ]
+                 },
+                 {
+                     "name":  "11 - Download Missing Attachment - 404",
+                     "event":  [
+                                   {
+                                       "listen":  "test",
+                                       "script":  {
+                                                      "type":  "text/javascript",
+                                                      "exec":  [
+                                                                   "pm.test(\u0027HTTP 404 Not Found\u0027, function () {",
+                                                                   "    pm.response.to.have.status(404);",
+                                                                   "});",
+                                                                   "const json = pm.response.json();",
+                                                                   "pm.test(\u0027Error response describes the missing attachment\u0027, function () {",
+                                                                   "    pm.expect(json.status).to.eql(404);",
+                                                                   "    pm.expect(json.error).to.eql(\u0027Not Found\u0027);",
+                                                                   "    pm.expect(json.message).to.include(\u0027Attachment not found with ID\u0027);",
+                                                                   "    pm.expect(json.path).to.include(\u0027/api/emails/attachments/999999999/download\u0027);",
+                                                                   "});"
+                                                               ]
+                                                  }
+                                   }
+                               ],
+                     "request":  {
+                                     "auth":  {
+                                                  "type":  "noauth"
+                                              },
+                                     "method":  "GET",
+                                     "header":  [
+
+                                                ],
+                                     "url":  "{{baseUrl}}/attachments/999999999/download",
+                                     "description":  "Verifies the ResourceNotFoundException path for an attachment ID that should not exist."
+                                 },
+                     "response":  [
+
+                                  ]
+                 }
+             ]
+}
