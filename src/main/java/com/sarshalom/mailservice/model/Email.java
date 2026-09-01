@@ -1,4 +1,4 @@
-package com.malam.task.model;
+package com.sarshalom.mailservice.model;
 
 import java.time.LocalDateTime;
 import java.util.List;

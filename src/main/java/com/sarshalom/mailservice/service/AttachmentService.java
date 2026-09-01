@@ -1,4 +1,4 @@
-package com.malam.task.service;
+package com.sarshalom.mailservice.service;
 
 
 import java.io.IOException;
@@ -16,10 +16,10 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.malam.task.exception.FileStorageException;
-import com.malam.task.exception.ResourceNotFoundException;
-import com.malam.task.model.Attachment;
-import com.malam.task.repository.AttachmentRepository;
+import com.sarshalom.mailservice.exception.FileStorageException;
+import com.sarshalom.mailservice.exception.ResourceNotFoundException;
+import com.sarshalom.mailservice.model.Attachment;
+import com.sarshalom.mailservice.repository.AttachmentRepository;
 
 import lombok.extern.log4j.Log4j2;
 

@@ -1,4 +1,4 @@
-package com.malam.task.model;
+package com.sarshalom.mailservice.model;
 
 
 import jakarta.persistence.*;

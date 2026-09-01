@@ -1,4 +1,4 @@
-package com.malam.task.mapper;
+package com.sarshalom.mailservice.mapper;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -8,11 +8,11 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.malam.task.dto.AttachmentResponse;
-import com.malam.task.dto.EmailRequest;
-import com.malam.task.dto.EmailResponse;
-import com.malam.task.model.Attachment;
-import com.malam.task.model.Email;
+import com.sarshalom.mailservice.dto.AttachmentResponse;
+import com.sarshalom.mailservice.dto.EmailRequest;
+import com.sarshalom.mailservice.dto.EmailResponse;
+import com.sarshalom.mailservice.model.Attachment;
+import com.sarshalom.mailservice.model.Email;
 
 @Component
 public class EmailMapper {

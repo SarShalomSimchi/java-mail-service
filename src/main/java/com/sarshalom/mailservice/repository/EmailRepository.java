@@ -1,6 +1,6 @@
-package com.malam.task.repository;
+package com.sarshalom.mailservice.repository;
 
-import com.malam.task.model.Email;
+import com.sarshalom.mailservice.model.Email;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
