@@ -1,4 +1,4 @@
-package com.malam.task.dto;
+package com.sarshalom.mailservice.dto;
 
 import java.time.LocalDateTime;
 import java.util.List;

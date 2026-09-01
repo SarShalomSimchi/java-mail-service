@@ -1,13 +1,13 @@
-package com.malam.task;
+package com.sarshalom.mailservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class MalamMailServiceApplication {
+public class MailServiceApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(MalamMailServiceApplication.class, args);
+		SpringApplication.run(MailServiceApplication.class, args);
 	}
 
 }

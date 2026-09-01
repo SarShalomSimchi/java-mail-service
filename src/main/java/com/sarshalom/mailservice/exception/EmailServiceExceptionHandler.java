@@ -1,4 +1,4 @@
-package com.malam.task.exception;
+package com.sarshalom.mailservice.exception;
 
 import java.time.LocalDateTime;
 
@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
-import com.malam.task.dto.ErrorResponse;
+import com.sarshalom.mailservice.dto.ErrorResponse;
 
 import lombok.extern.log4j.Log4j2;
 

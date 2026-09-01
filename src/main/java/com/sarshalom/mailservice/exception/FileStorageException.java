@@ -1,4 +1,4 @@
-package com.malam.task.exception;
+package com.sarshalom.mailservice.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
