@@ -1,4 +1,4 @@
-package com.malam.task.controller;
+package com.sarshalom.mailservice.controller;
 
 
 import java.util.HashMap;
@@ -21,11 +21,11 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
-import com.malam.task.dto.EmailRequest;
-import com.malam.task.dto.EmailResponse;
-import com.malam.task.model.Attachment;
-import com.malam.task.service.AttachmentService;
-import com.malam.task.service.EmailService;
+import com.sarshalom.mailservice.dto.EmailRequest;
+import com.sarshalom.mailservice.dto.EmailResponse;
+import com.sarshalom.mailservice.model.Attachment;
+import com.sarshalom.mailservice.service.AttachmentService;
+import com.sarshalom.mailservice.service.EmailService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;

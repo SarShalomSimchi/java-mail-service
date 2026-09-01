@@ -1,4 +1,4 @@
-package com.malam.task;
+package com.sarshalom.mailservice;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -13,10 +13,10 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import com.malam.task.exception.FileStorageException;
-import com.malam.task.model.Attachment;
-import com.malam.task.repository.AttachmentRepository;
-import com.malam.task.service.AttachmentService;
+import com.sarshalom.mailservice.exception.FileStorageException;
+import com.sarshalom.mailservice.model.Attachment;
+import com.sarshalom.mailservice.repository.AttachmentRepository;
+import com.sarshalom.mailservice.service.AttachmentService;
 
 class AttachmentServiceTest {
     @Mock

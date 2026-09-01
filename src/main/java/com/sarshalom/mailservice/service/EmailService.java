@@ -1,4 +1,4 @@
-package com.malam.task.service;
+package com.sarshalom.mailservice.service;
 
 
 import java.util.ArrayList;
@@ -12,13 +12,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.malam.task.dto.EmailRequest;
-import com.malam.task.dto.EmailResponse;
-import com.malam.task.exception.ResourceNotFoundException;
-import com.malam.task.mapper.EmailMapper;
-import com.malam.task.model.Attachment;
-import com.malam.task.model.Email;
-import com.malam.task.repository.EmailRepository;
+import com.sarshalom.mailservice.dto.EmailRequest;
+import com.sarshalom.mailservice.dto.EmailResponse;
+import com.sarshalom.mailservice.exception.ResourceNotFoundException;
+import com.sarshalom.mailservice.mapper.EmailMapper;
+import com.sarshalom.mailservice.model.Attachment;
+import com.sarshalom.mailservice.model.Email;
+import com.sarshalom.mailservice.repository.EmailRepository;
 
 import lombok.extern.log4j.Log4j2;
 

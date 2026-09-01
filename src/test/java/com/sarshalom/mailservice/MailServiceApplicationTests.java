@@ -1,10 +1,10 @@
-package com.malam.task;
+package com.sarshalom.mailservice;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class MalamMailServiceApplicationTests {
+class MailServiceApplicationTests {
 
 	@Test
 	void contextLoads() {

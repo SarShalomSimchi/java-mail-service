@@ -1,4 +1,4 @@
-package com.malam.task;
+package com.sarshalom.mailservice;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -15,12 +15,12 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
-import com.malam.task.dto.EmailRequest;
-import com.malam.task.mapper.EmailMapper;
-import com.malam.task.model.Email;
-import com.malam.task.repository.EmailRepository;
-import com.malam.task.service.AttachmentService;
-import com.malam.task.service.EmailService;
+import com.sarshalom.mailservice.dto.EmailRequest;
+import com.sarshalom.mailservice.mapper.EmailMapper;
+import com.sarshalom.mailservice.model.Email;
+import com.sarshalom.mailservice.repository.EmailRepository;
+import com.sarshalom.mailservice.service.AttachmentService;
+import com.sarshalom.mailservice.service.EmailService;
 
 class EmailServiceTest {
     @Mock

@@ -1,4 +1,4 @@
-package com.malam.task;
+package com.sarshalom.mailservice;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
@@ -24,10 +24,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.malam.task.model.Attachment;
-import com.malam.task.repository.AttachmentRepository;
-import com.malam.task.repository.EmailRepository;
-import com.malam.task.service.AttachmentService;
+import com.sarshalom.mailservice.model.Attachment;
+import com.sarshalom.mailservice.repository.AttachmentRepository;
+import com.sarshalom.mailservice.repository.EmailRepository;
+import com.sarshalom.mailservice.service.AttachmentService;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -112,7 +112,7 @@ class EmailControllerIntegrationTest {
     @DisplayName("Search emails")
     void searchEmails() throws Exception {
         // Insert a test email
-        com.malam.task.model.Email email = new com.malam.task.model.Email();
+        com.sarshalom.mailservice.model.Email email = new com.sarshalom.mailservice.model.Email();
         email.setSender("sender@search.com");
         email.setRecipient("recipient@search.com");
         email.setSubject("Search Subject");
@@ -137,7 +137,7 @@ class EmailControllerIntegrationTest {
     @Test
     @DisplayName("Download attachment")
     void downloadAttachment() throws Exception {
-        com.malam.task.model.Email email = new com.malam.task.model.Email();
+        com.sarshalom.mailservice.model.Email email = new com.sarshalom.mailservice.model.Email();
         email.setSender("sender@example.com");
         email.setRecipient("recipient@example.com");
         email.setSubject("Test Subject");
